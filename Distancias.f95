@@ -275,13 +275,15 @@ PRINT*,''
 
 CONTAINS
 
-SUBROUTINE media_desvio(x,media,desvio_padrao)
+SUBROUTINE media_desvio(x,n,media,desvio_padrao)
   IMPLICIT NONE
   INTEGER(KIND=DP), INTENT(IN)::n
   REAL(KIND=DP), INTENT(IN), ALLOCATABLE, DIMENSION(:):: x
   REAL(KIND=DP), INTENT(OUT):: media, desvio_padrao
   INTEGER(KIND=DP):: i,j
   REAL(KIND=DP):: soma, soma2
+
+n=30! voce escolhe
 
  ALLOCATE(x(n))
  !implicit real*8(a-h,o-z)
@@ -302,9 +304,10 @@ END SUBROUTINE media_desvio
 
 !#####################################################
 	
-SUBROUTINE soma(x,w)
+SUBROUTINE soma(n,x,w)
  IMPLICIT NONE
- INTEGER(KIND=DP):: e,i
+ INTEGER(KIND=DP):: i
+ REAL(KIND=DP), ALLOCATE, INTENT(IN)::n=30! pode mudar
  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:), INTENT(IN)::x	
  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:), INTENT(OUT)::w   
 
@@ -335,75 +338,74 @@ SUBROUTINE maha(g11,np1,g22,np2,ndim,dist)
 !	integer,intent(in)::np1,np2,ndim 
 
 
-      REAL(KIND=DP):: g1(np1,ndim),g2(np2,ndim),g1T(ndim,np1),g2T(ndim,np2),&
-    cov1(ndim,ndim),cov2(ndim,ndim),covag(ndim,ndim),soma(ndim),xm1(ndim),&
-	xm2(ndim),g22(np2,ndim),md(ndim,1),mdT(1,ndim),alfa(1,ndim),d2(1,1),g11(np1,ndim)
+REAL(KIND=DP):: g1(np1,ndim),g2(np2,ndim),g1T(ndim,np1),g2T(ndim,np2),&
+cov1(ndim,ndim),cov2(ndim,ndim),covag(ndim,ndim),soma(ndim),xm1(ndim),&
+m2(ndim),g22(np2,ndim),md(ndim,1),mdT(1,ndim),alfa(1,ndim),d2(1,1),g11(np1,ndim)
 
 
 	g1=g11
 	g2=g22
 
-c	grupo 1	
+!	grupo 1	
 
-	do j=1,ndim
-	soma(j)=0d0
-	do i=1,np1
-	soma(j)=soma(j)+g1(i,j)
-	end do
-	end do
+DO j=1,ndim
+  soma(j)=0d0
+   DO i=1,np1
+    soma(j)=soma(j)+g1(i,j)
+   END DO 
+END DO
 
-	do i=1,ndim
-	xm1(i)=soma(i)/dfloat(np1)
-	end do	
+DO i=1,ndim
+  xm1(i)=soma(i)/dfloat(np1)
+END DO	
 
-c	grupo 2	
+!	grupo 2	
 
-	do j=1,ndim
-	soma(j)=0d0
-	do i=1,np2
-	soma(j)=soma(j)+g2(i,j)
-	end do
-	end do
+DO j=1,ndim
+  soma(j)=0d0
+  DO i=1,np2
+   soma(j)=soma(j)+g2(i,j)
+  END DO
+END DO
 
+DO i=1,ndim
+  xm2(i)=soma(i)/dfloat(np2)
+END DO	
 
-	do i=1,ndim
-	xm2(i)=soma(i)/dfloat(np2)
-	end do	
+!vetor das diferenças - será escrito sobre a matrizes g1 e g2
 
-c	vetor das diferen�as - ser� escrito sobre a matrizes g1 e g2
+DO j=1,ndim
+ DO i=1,np1
+  g1(i,j)=g1(i,j)-xm1(j)
+  END DO 
+END DO 
 
-	do j=1,ndim
-	do i=1,np1
-	g1(i,j)=g1(i,j)-xm1(j)
-	end do
-	end do
+DO j=1,ndim
+ DO i=1,np2
+  g2(i,j)=g2(i,j)-xm2(j)
+ END DO 
+END DO 	
 
-	do j=1,ndim
-	do i=1,np2
-	g2(i,j)=g2(i,j)-xm2(j)
-	end do
-	end do	
+!     --------GRUPO 1 ---------------------
+!	criando a matriz transposta g1T
+!	-------------- -------------------
+DO i=1,np1    !107 ! número de equações 
+ DO j=1,ndim   !2
+  g1T(j,i)=g1(i,j)
+ END DO 
+END DO 
+!----------------------------------------------------
+!	 - multiplicação de matrizes
+!	   multiplicação de g1T por g1 
 
-C     --------GRUPO 1 ---------------------
-C	criando a matriz transposta g1T
-C	-------------- -------------------
-	do i=1,np1    !107 ! n�mero de equa��es 
-	do j=1,ndim   !2
-	g1T(j,i)=g1(i,j)
-	end do
-	end do
-c----------------------------------------------------
-C	 - multiplica��o de matrizes
-c	   multiplica��o de g1T por g1 
-
-	do k=1,ndim
-	do j=1,ndim
-	cov1(j,k)=0.d0
-	do i=1,np1	
-	cov1(j,k)=cov1(j,k)+g1T(j,i)*g1(i,k)
-	end do
-	end do
-	end do
+DO k=1,ndim
+ DO j=1,ndim
+  cov1(j,k)=0.d0
+  DO i=1,np1	
+   cov1(j,k)=cov1(j,k)+g1T(j,i)*g1(i,k)
+  END DO
+ END DO
+END DO 
 
 	do i=1,ndim
 	do j=1,ndim
@@ -411,12 +413,12 @@ c	   multiplica��o de g1T por g1
 	end do
 	end do
 
-c	write(6,*) '======covari�ncia 1 ======'
-c	write(6,*) cov1(1,1),cov1(1,2)
-c	write(6,*) cov1(2,1),cov1(2,2)
+!	write(6,*) '======covari�ncia 1 ======'
+!	write(6,*) cov1(1,1),cov1(1,2)
+!	write(6,*) cov1(2,1),cov1(2,2)
 
-C     --------GRUPO 2 ---------------------
-C	criando a matriz transposta g2T
+!     --------GRUPO 2 ---------------------
+!	criando a matriz transposta g2T
 
 	do i=1,np2
 	do j=1,ndim
