@@ -307,7 +307,7 @@ END SUBROUTINE media_desvio
 SUBROUTINE soma(n,x,w)
  IMPLICIT NONE
  INTEGER(KIND=DP):: i
- REAL(KIND=DP), ALLOCATE, INTENT(IN)::n=30! pode mudar
+ REAL(KIND=DP), ALLOCATABLE, INTENT(IN)::n=30! pode mudar
  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:), INTENT(IN)::x	
  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:), INTENT(OUT)::w   
 
@@ -338,7 +338,7 @@ SUBROUTINE maha(g11,np1,g22,np2,ndim,dist)
 !	integer,intent(in)::np1,np2,ndim 
 
 
-REAL(KIND=DP):: g1(np1,ndim),g2(np2,ndim),g1T(ndim,np1),g2T(ndim,np2),&
+REAL*8 g1(np1,ndim),g2(np2,ndim),g1T(ndim,np1),g2T(ndim,np2),&
 cov1(ndim,ndim),cov2(ndim,ndim),covag(ndim,ndim),soma(ndim),xm1(ndim),&
 m2(ndim),g22(np2,ndim),md(ndim,1),mdT(1,ndim),alfa(1,ndim),d2(1,1),g11(np1,ndim)
 
@@ -407,11 +407,11 @@ DO k=1,ndim
  END DO
 END DO 
 
-	do i=1,ndim
-	do j=1,ndim
-	cov1(i,j)=cov1(i,j)/dfloat(np1)
-	end do
-	end do
+DO i=1,ndim
+ DO j=1,ndim
+  cov1(i,j)=cov1(i,j)/dfloat(np1)
+ END DO
+END DO
 
 !	write(6,*) '======covari�ncia 1 ======'
 !	write(6,*) cov1(1,1),cov1(1,2)
@@ -420,100 +420,99 @@ END DO
 !     --------GRUPO 2 ---------------------
 !	criando a matriz transposta g2T
 
-	do i=1,np2
-	do j=1,ndim
-	g2T(j,i)=g2(i,j)
-	end do
-	end do
+DO i=1,np2
+ DO j=1,ndim
+  g2T(j,i)=g2(i,j)
+ END DO 
+END DO 
 
-c---------------------------------------------------
-C	 - multiplica��o de matrizes
-c	   multiplica��o de g2T por g2 
+!---------------------------------------------------
+!	 - multiplicação de matrizes
+!	   multiplicação de g2T por g2 
 
-	do k=1,ndim
-	do j=1,ndim
-	cov2(j,k)=0.d0
-	do i=1,np2
-	cov2(j,k)=cov2(j,k)+g2T(j,i)*g2(i,k)
-	end do
-	end do
-	end do
+DO k=1,ndim
+ DO j=1,ndim
+  cov2(j,k)=0.d0
+   DO i=1,np2
+    cov2(j,k)=cov2(j,k)+g2T(j,i)*g2(i,k)
+   END DO
+  END DO 
+END DO 
 
-	do i=1,ndim
-	do j=1,ndim
-	cov2(i,j)=cov2(i,j)/dfloat(np2)
-	end do
-	end do
+DO i=1,ndim
+  DO j=1,ndim
+   cov2(i,j)=cov2(i,j)/dfloat(np2)
+  END DO 
+END DO 
 
-c	write(6,*) '======covari�ncia 2 ======'
-c	write(6,*) cov2(1,1),cov2(1,2)
-c	write(6,*) cov2(2,1),cov2(2,2)
+!	write(6,*) '======covariância 2 ======'
+!	write(6,*) cov2(1,1),cov2(1,2)
+!	write(6,*) cov2(2,1),cov2(2,2)
 
 
-c	-------- covari�ncia agrupada------
+!	-------- covariância agrupada------
 
-	do i=1,ndim
-	do j=1,ndim
-	covag(i,j)=dfloat(np1)*cov1(i,j)/(dfloat(np1+np2))+
-     *             dfloat(np2)*cov2(i,j)/(dfloat(np1+np2))
-	end do
-	end do
+DO i=1,ndim
+  DO j=1,ndim
+   covag(i,j)=dfloat(np1)*cov1(i,j)/(dfloat(np1+np2))+dfloat(np2)*cov2(i,j)/(dfloat(np1+np2))
+  END DO
+END DO 
 
-c	write(6,*) '======covari�ncia agrupada ======'
-c	write(6,*) covag(1,1),covag(1,2)
-c	write(6,*) covag(2,1),covag(2,2)	
+!	write(6,*) '======covariância agrupada ======'
+!	write(6,*) covag(1,1),covag(1,2)
+!	write(6,*) covag(2,1),covag(2,2)	
 
-c	inversao da matriz covag - usando subrotina
+!	inversão da matriz covag - usando subrotina
 
-	call INVERT(covag,ndim)
+ CALL INVERT(covag,ndim)
 
-c	write(6,*) '====== inv covari�ncia agrupada ======'
-c	write(6,*) covag(1,1),covag(1,2)
-c	write(6,*) covag(2,1),covag(2,2)
+!	write(6,*) '====== inv covariância agrupada ======'
+!	write(6,*) covag(1,1),covag(1,2)
+!	write(6,*) covag(2,1),covag(2,2)
 
-c	diferenicas m�dias
+!	diferenicas médias
 
-	do i=1,ndim
-	md(i,1)=xm1(i)-xm2(i)
-	end do
+ DO i=1,ndim
+  md(i,1)=xm1(i)-xm2(i)
+ END DO 
 
-c	write(6,*) '====== diferencias medias ======'
-c	write(6,*) md(1,1)
-c	write(6,*) md(2,1)
+!	write(6,*) '====== diferencias medias ======'
+!	write(6,*) md(1,1)
+!	write(6,*) md(2,1)
 
-C	criando a matriz transposta mdT
-C	---------------------------
-	do i=1,ndim
-	do j=1,1
-	mdT(j,i)=md(i,j)
-	end do
-	end do
+!	criando a matriz transposta mdT
+!	---------------------------
+ DO i=1,ndim
+  DO j=1,1
+   mdT(j,i)=md(i,j)
+  END DO 
+END DO 
 
-c----------------------------------------------------
-c	multiplica��o de mdT por cov^-1 
-C	 - multiplica��o de matrizes
+!----------------------------------------------------
+!	multiplicaçãoo de mdT por cov^-1 
+!	 - multiplicação de matrizes
 
-	do k=1,ndim	
-	do j=1,1	
-	alfa(j,k)=0.d0
-	do i=1,ndim
-	alfa(j,k)=alfa(j,k)+mdT(j,i)*covag(i,k)
-	end do
-	end do
-	end do
+ DO k=1,ndim	
+  DO j=1,1	
+   alfa(j,k)=0.d0
+    DO i=1,ndim
+	 alfa(j,k)=alfa(j,k)+mdT(j,i)*covag(i,k)
+    END DO 
+  END DO 
+END DO 
 
-c----------------------------------------------------
-c	multiplica��o de alfa por md 
-C	 - multiplica��o de matrizes
+!----------------------------------------------------
+!	multiplica��o de alfa por md 
+!	 - multiplica��o de matrizes
 
-	do k=1,1
-	do j=1,1
-	d2(j,k)=0.d0
-	do i=1,ndim  !2	!
-	d2(j,k)=d2(j,k)+alfa(j,i)*md(i,k)
-	end do
-	end do
-	end do
+DO k=1,1
+ DO j=1,1
+  d2(j,k)=0.d0
+   DO i=1,ndim  !2	!
+    d2(j,k)=d2(j,k)+alfa(j,i)*md(i,k)
+   END DO 
+  END DO 
+END DO 
 
 	dist=dsqrt(d2(1,1))
 
