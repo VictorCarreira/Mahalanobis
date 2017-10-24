@@ -20,7 +20,7 @@ INTEGER, PARAMETER::DP = SELECTED_REAL_KIND(p=8, r=8)
 REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:):: tr1, tr2, s, menor, g, rg, trT, & 
 cov, md, mdT, alfa, d2, g1, g2
 
-INTEGER(KIND=DP):: i, j, k, ie, np, ij, nt1, nt2, np2
+INTEGER(KIND=SP):: i, j, k, ie, np, ij, nt1, nt2
 
 REAL(KIND=DP)::a1, ctr1x, ctr2x, ctr1y, ctr2y, d_p1_c1, d_p1_c2, d_p2_c1, d_p2_c2, &
 d_p3_c1, d_p3_c2, d_p4_c1, d_p4_c2, dist
@@ -176,7 +176,7 @@ PRINT*, 'depois1',tr1(1,1),tr1(3,1)
 
 
 !distancias entre os dois grupos
-PAUSE
+
 CALL maha(tr1,nt1,tr2,nt2,2,dist)
 WRITE(6,*)'distancia entre os grupos=',dist
 
@@ -283,7 +283,7 @@ SUBROUTINE media_desvio(x,n,media,desvio_padrao)
   INTEGER(KIND=DP):: i,j
   REAL(KIND=DP):: soma, soma2
 
-n=30! voce escolhe
+!n=30! voce escolhe
 
  ALLOCATE(x(n))
  !implicit real*8(a-h,o-z)
@@ -301,28 +301,6 @@ n=30! voce escolhe
 
 END SUBROUTINE media_desvio
 
-
-!#####################################################
-	
-SUBROUTINE soma(n,x,w)
- IMPLICIT NONE
- INTEGER(KIND=DP):: i,e
- REAL(KIND=DP), ALLOCATABLE, INTENT(IN)::n=30! pode mudar
- REAL(KIND=DP), ALLOCATABLE, DIMENSION(:), INTENT(IN)::x	
- REAL(KIND=DP), ALLOCATABLE, DIMENSION(:), INTENT(OUT)::w   
-
-ALLOCATE(x(e))
-    !integer:: e,i
-	!real*8 :: x(e),w
- 
- w=0
- 
- DO i=1,e
-  w= w + x(i)
- END DO 
-
-END SUBROUTINE soma
-
 !#####################################################
 
 SUBROUTINE maha(g11,np1,g22,np2,ndim,dist)      
@@ -331,13 +309,13 @@ SUBROUTINE maha(g11,np1,g22,np2,ndim,dist)
 !! dois agrupamentos de elementos com dimensão ndim 	
 
  IMPLICIT NONE
- REAL(KIND=DP),DIMENSION(:,:), ALLOCATABLE:: g11, g22
- REAL(KIND=DP):: dist
- INTEGER(KIND=DP):: np1, np2, ndim
- REAL(KIND=DP),DIMENSION(:,:), ALLOCATABLE:: g1, g2, g1T, g2T, cov1, &
+ REAL(KIND=SP),DIMENSION(:,:), ALLOCATABLE:: g11, g22
+ REAL(KIND=SP):: dist
+ INTEGER(KIND=SP):: np1, np2, ndim
+ REAL(KIND=SP),DIMENSION(:,:), ALLOCATABLE:: g1, g2, g1T, g2T, cov1, &
  cov2, covag, md, mdT, alfa, d2
- REAL(KIND=DP),DIMENSION(:), ALLOCATABLE::	soma, xm1, m2
- INTEGER(KIND=DP):: i, j, k  
+ REAL(KIND=SP),DIMENSION(:), ALLOCATABLE::	soma, xm1,xm2, m2
+ INTEGER(KIND=SP):: i, j, k  
 
  ALLOCATE(g1(np1,ndim),g2(np2,ndim),&
  g1T(ndim,np1),g2T(ndim,np2),cov1(ndim,ndim),cov2(ndim,ndim),&
@@ -383,7 +361,7 @@ DO j=1,ndim
 END DO
 
 DO i=1,ndim
-  xm2(i)=soma(i)/DFLOAT(np2)
+  xm2(i)=soma(i)/dfloat(np2)
   !xm2(i)=soma(i)/REAL(np2)
 END DO	
 
