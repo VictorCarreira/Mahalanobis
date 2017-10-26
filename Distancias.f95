@@ -278,7 +278,7 @@ CONTAINS
 SUBROUTINE media_desvio(x,n,media,desvio_padrao)
   IMPLICIT NONE
   INTEGER(KIND=DP), INTENT(IN)::n
-  REAL(KIND=DP), INTENT(IN), ALLOCATABLE, DIMENSION(:):: x
+  REAL(KIND=DP), INTENT(INOUT), ALLOCATABLE, DIMENSION(:):: x
   REAL(KIND=DP), INTENT(OUT):: media, desvio_padrao
   INTEGER(KIND=DP):: i,j
   REAL(KIND=DP):: soma, soma2
@@ -309,13 +309,13 @@ SUBROUTINE maha(g11,np1,g22,np2,ndim,dist)
 !! dois agrupamentos de elementos com dimensão ndim 	
 
  IMPLICIT NONE
- REAL(KIND=SP),DIMENSION(:,:), ALLOCATABLE:: g11, g22
- REAL(KIND=SP):: dist
- INTEGER(KIND=SP):: np1, np2, ndim
- REAL(KIND=SP),DIMENSION(:,:), ALLOCATABLE:: g1, g2, g1T, g2T, cov1, &
- cov2, covag, md, mdT, alfa, d2
- REAL(KIND=SP),DIMENSION(:), ALLOCATABLE::	soma, xm1,xm2, m2
- INTEGER(KIND=SP):: i, j, k  
+ REAL(KIND=DP),DIMENSION(:,:), ALLOCATABLE:: g11, g22
+ REAL(KIND=DP):: dist
+ INTEGER(KIND=DP):: np1, np2, ndim
+ REAL(KIND=DP),DIMENSION(:,:), ALLOCATABLE:: g1, g2, g1T, g2T, cov1, &
+ cov2, covag, md, mdT, alfa, d2, tr1, nt1, tr2, nt2
+ REAL(KIND=DP),DIMENSION(:), ALLOCATABLE::	soma, xm1,xm2, m2
+ INTEGER(KIND=DP):: i, j, k  
 
  ALLOCATE(g1(np1,ndim),g2(np2,ndim),&
  g1T(ndim,np1),g2T(ndim,np2),cov1(ndim,ndim),cov2(ndim,ndim),&
@@ -516,8 +516,12 @@ END SUBROUTINE maha
 
 
 SUBROUTINE INVERT(A,i)      
+ !IMPLICIT NONE
+ !REAL(KIND=DP),INTENT(IN):: A(i,j), B(i)
+ !INTEGER(KIND=DP) INTENT(INOUT):: i,im,j,k,l
+ 
  real*8 A(i,i),B(i)
- integer i,im,j,k,l
+ integer*8 i,im,j,k,l
    IM=I-1
    DO 5 K=1,I
     DO 2 J=1,IM
