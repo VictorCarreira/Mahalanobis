@@ -15,16 +15,12 @@ PROGRAM Distancias
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
 INTEGER, PARAMETER::SP = SELECTED_REAL_KIND(p=4, r=4)
-INTEGER, PARAMETER::DP = SELECTED_REAL_KIND(p=8, r=8)
-    
+INTEGER, PARAMETER::DP = SELECTED_REAL_KIND(p=8, r=8)   
 REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:):: tr1, tr2, s, menor, g, rg, trT, & 
 cov, md, mdT, alfa, d2, g1, g2
-
-INTEGER(KIND=SP):: i, j, k, ie, np, ij, nt1, nt2
-
+INTEGER:: i, j, k, ie, np, ij, nt1, nt2, np1, np2
 REAL(KIND=DP)::a1, ctr1x, ctr2x, ctr1y, ctr2y, d_p1_c1, d_p1_c2, d_p2_c1, d_p2_c2, &
 d_p3_c1, d_p3_c2, d_p4_c1, d_p4_c2, dist
-
 CHARACTER(LEN=11):: l(4), lito(1000)
 CHARACTER(LEN=80):: cab 
 
@@ -169,7 +165,7 @@ WRITE(6,*) '==============='
 PRINT*, 'antes',tr1(1,1),tr1(3,1)
 
 !distancias entre os dois grupos
-CALL maha(tr1,nt1,tr2,nt2,2,dist)
+CALL maha(tr1,np1,tr2,nt2,2,dist)
 WRITE(6,*)'distancia entre os grupos=',dist
 PRINT*, 'depois1',tr1(1,1),tr1(3,1)
 
@@ -177,7 +173,7 @@ PRINT*, 'depois1',tr1(1,1),tr1(3,1)
 
 !distancias entre os dois grupos
 
-CALL maha(tr1,nt1,tr2,nt2,2,dist)
+CALL maha(tr1,np1,tr2,nt2,2,dist)
 WRITE(6,*)'distancia entre os grupos=',dist
 
 PRINT*, 'depois1',tr1(1,1),tr1(3,1)
@@ -193,26 +189,26 @@ END DO
   g2(1,1)=g(1,1)
   g2(1,2)=g(1,2)
 
-CALL maha(tr1,nt1,g2,1,2,dist)
+CALL maha(tr1,np1,g2,1,2,dist)
 WRITE(6,*)'d_p1_c1 maha=',dist
 
  g2(1,1)=g(2,1) 
  g2(1,2)=g(2,2)
 
 
-CALL maha(tr1,nt1,g2,1,2,dist)
+CALL maha(tr1,np1,g2,1,2,dist)
 WRITE(6,*)'d_p2_c1 maha=',dist
 
  g2(1,1)=g(3,1)
  g2(1,2)=g(3,2)
 
-CALL maha(tr1,nt1,g2,1,2,dist)
+CALL maha(tr1,np1,g2,1,2,dist)
 WRITE(6,*)'d_p3_c1 maha=',dist
  
   g2(1,1)=g(4,1)
   g2(1,2)=g(4,2)
 
-CALL maha(tr1,nt1,g2,1,2,dist)
+CALL maha(tr1,np1,g2,1,2,dist)
 WRITE(6,*)'d_p4_c1 maha=',dist
 
 !classe 2
@@ -227,30 +223,30 @@ END DO
   g2(1,1)=g(1,1)
   g2(1,2)=g(1,2)
 
-CALL maha(tr2,nt2,g2,1,2,dist)
+CALL maha(tr2,np2,g2,1,2,dist)
 WRITE(6,*)'d_p1_c2 maha=',dist
 
   g2(1,1)=g(2,1)
   g2(1,2)=g(2,2)
 
-CALL maha(tr2,nt2,g2,1,2,dist)
+CALL maha(tr2,np2,g2,1,2,dist)
 WRITE(6,*)'d_p2_c2 maha=',dist
 
  g2(1,1)=g(3,1)
  g2(1,2)=g(3,2)
 
-CALL maha(tr2,nt2,g2,1,2,dist)
+CALL maha(tr2,np2,g2,1,2,dist)
 WRITE(6,*)'d_p3_c2 maha=',dist
 
  g2(1,1)=g(4,1)
  g2(1,2)=g(4,2)
 
-CALL maha(tr2,nt2,g2,1,2,dist)
+CALL maha(tr2,np2,g2,1,2,dist)
 WRITE(6,*)'d_p4_c2 maha=',dist
 
 !distancias entre os dois grupos
 
-CALL maha(tr1,nt1,tr2,nt2,2,dist)
+CALL maha(tr1,np1,tr2,np2,2,dist)
 WRITE(6,*)'distancia entre os grupos=',dist
 
 11	FORMAT(4(ES12.4E3,2x))
@@ -311,7 +307,7 @@ SUBROUTINE maha(g11,np1,g22,np2,ndim,dist)
  IMPLICIT NONE
  REAL(KIND=DP),DIMENSION(:,:), ALLOCATABLE:: g11, g22
  REAL(KIND=DP):: dist
- INTEGER(KIND=DP):: np1, np2, ndim
+ INTEGER:: np1, np2, ndim
  REAL(KIND=DP),DIMENSION(:,:), ALLOCATABLE:: g1, g2, g1T, g2T, cov1, &
  cov2, covag, md, mdT, alfa, d2, tr1, nt1, tr2, nt2
  REAL(KIND=DP),DIMENSION(:), ALLOCATABLE::	soma, xm1,xm2, m2
@@ -516,12 +512,12 @@ END SUBROUTINE maha
 
 
 SUBROUTINE INVERT(A,i)      
- !IMPLICIT NONE
- !REAL(KIND=DP),INTENT(IN):: A(i,j), B(i)
- !INTEGER(KIND=DP) INTENT(INOUT):: i,im,j,k,l
+ IMPLICIT NONE
+ REAL(KIND=DP):: A(i,j), B(i)
+ INTEGER:: i,im,j,k,l
  
- real*8 A(i,i),B(i)
- integer*8 i,im,j,k,l
+ !real*8 A(i,i),B(i)
+ !integer*4 i,im,j,k,l
    IM=I-1
    DO 5 K=1,I
     DO 2 J=1,IM
