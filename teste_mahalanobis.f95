@@ -17,67 +17,36 @@ IMPLICIT NONE
 INTEGER, PARAMETER::SP = SELECTED_INT_KIND(r=8)
 INTEGER, PARAMETER::DP = SELECTED_REAL_KIND(12,100)
 
-INTEGER(KIND=SP):: i,j,k,x,y,z
+INTEGER(KIND=SP):: i,j,k
+
+REAL(KIND=DP)::x,y,z,a,b,u,v
 REAL(KIND=DP)::maha
-REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:)::lito1, lito2, ponto
+REAL(KIND=DP), PARAMETER::pi=3.141592653
+
+REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:)::lito
 
 21 FORMAT(15(F4.2,2x))
 
-ALLOCATE(lito1(5,15),lito2(1,15))
 
-lito1=0d0
-lito2=0d0
+a=RAND(i)
+b=RAND(j)
 
-DO i=1,5
- DO j=1,15
-   IF(i>j)THEN
-     lito1(i,j)=3.42
-   ELSE IF(i<j)THEN
-     lito1(i,j)=1.72
-   ELSE
-     lito1(i,j)=8.98
-   ENDIF
-   !lito1(i,j)=2.0
- END DO
-END DO
+!Representação paramétrica do esferóide
+DO i=1,2*3
+ DO j=1,3
+   x=a*SIN(i)*COS(j)
+   y=a*SIN(i)*SIN(j)
+   z=b*COS(i)
+   END DO
+END DO 
 
-DO i=1,1
- DO j=1,15
-   IF(i>j)THEN
-     lito2(i,j)=7.72
-   ELSE IF(i<j)THEN
-     lito2(i,j)=6.98
-   ELSE
-     lito2(i,j)=0.25
-   ENDIF
-   !lito2(i,j)=3.0
- END DO
-END DO
+PRINT*,z
 
-PRINT*,'---------------------'
-PRINT*,'Matriz lito1'
-PRINT*,'---------------------'
-WRITE(*,21) lito1
-PRINT*,'---------------------'
-PRINT*,'Matriz lito2'
-PRINT*,'---------------------'
-WRITE(*,21) lito2
-PRINT*,'---------------------'
+!Representação cartesiana do esferóide 
+
+ !z=[c**2*(a**4*c**2-x**2-y**2)]/a**2
 
 
-!Criando um Esferóide 
-
-!Interface 2
-DO j=1,Nx
-  IF (j.ge.245 .and. j.le.345) THEN
-    zc=150+NINT(SQRT(2500.0-(j-295.0)**2))
-  ELSE
-    zc=150
-  ENDIF
-  DO i=zc,Nz
-    vel(i,j)=2100.0
-  ENDDO
-ENDDO
 
 
 !*******************************************************************************************!
